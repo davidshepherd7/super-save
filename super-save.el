@@ -78,6 +78,12 @@ When a buffer-file-name matches any of the regexps it is ignored."
   :type '(repeat (choice regexp))
   :package-version '(super-save . "0.4.0"))
 
+(defcustom super-save-max-file-characters nil
+  "If non-nil, don't save buffers with more than this many characters."
+  :group 'super-save
+  :type 'integer
+  :package-version '(super-save . "0.4.0"))
+
 (defun super-save-include-p (filename)
   "Return non-nil if FILENAME doesn't match any of the `super-save-exclude'."
   (let ((checks super-save-exclude)
@@ -95,7 +101,9 @@ When a buffer-file-name matches any of the regexps it is ignored."
              (buffer-modified-p (current-buffer))
              (file-writable-p buffer-file-name)
              (if (file-remote-p buffer-file-name) super-save-remote-files t)
-             (super-save-include-p buffer-file-name))
+             (super-save-include-p buffer-file-name)
+             (or (not super-save-max-file-characters)
+                 (<= (buffer-size) super-save-max-file-characters)))
     (save-buffer)))
 
 (defvar super-save-idle-timer)
